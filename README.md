@@ -25,15 +25,6 @@
 
 ---
 
----
-
-## ✨ 回落域名选择
-
-* 禁止使用默认**回落域名**
-* 参考文章中的获取方式[点击查看](https://vps.jinqians.com/vless-reality/)
-
----
-
 ## 📦 支持环境
 
 * **系统**：
@@ -190,6 +181,28 @@ A：可以，卸载后可重新安装，不会复用旧 UUID / Key。
 ### Q：支持 Clash / sing-box 吗？
 
 A：当前脚本输出的是标准 VLESS Reality 链接，后续版本将支持直接导出 Clash Meta / sing-box 配置。
+
+如使用clash verge，可配置`.yaml`文件格式如下：
+
+```yaml
+proxies:
+  - name: "VLESS"
+    type: vless
+    server: "your ip address"
+    port: 443
+    uuid: "your uuid"
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: "your server name"
+    reality-opts:
+      public-key: "your public key"
+      short-id: ""
+    client-fingerprint: chrome
+```
+
+此外服务器防火墙需开放`443`端口，例如`Vultr`仅开放`22`端口
 
 ---
 
