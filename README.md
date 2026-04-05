@@ -94,6 +94,74 @@ bash <(curl -fsSL https://raw.githubusercontent.com/jinqians/vless/main/vless.sh
 
 ---
 
+## 🚄 可选网络优化：启用 BBR
+
+如果你的节点主要用于跨境访问、Cloudflare Tunnel、WordPress 后台管理，或承载 Xray / Shadowsocks 等代理流量，建议额外启用 **BBR**。
+
+传统 TCP 拥塞控制通常依赖“丢包”来判断是否拥塞。在高延迟、轻微丢包的跨境线路上，这种策略很容易过度降速。例如 RTT 在 `150ms` 左右、丢包率只有 `1% - 3%` 时，也可能出现吞吐明显下降、窗口快速收缩的问题。
+
+常见表现包括：
+
+* WordPress 后台加载缓慢，打开媒体库或上传大文件容易超时
+* 流媒体或代理连接在 `20Mbps` 左右开始抖动、掉速
+* 低配机器 CPU 还没到瓶颈，网络吞吐已经先掉下来
+
+BBR 会主动测量链路带宽与 RTT，而不是单纯依赖丢包推测拥塞，因此在高延迟链路上通常能获得更稳定的吞吐表现。对于大文件传输、备份同步、代理转发这类场景，往往会比默认算法更顺畅。
+
+### 启用前先检查内核
+
+先查看当前内核版本：
+
+```bash
+uname -r
+```
+
+建议使用 `5.4` 及以上内核。
+
+然后确认系统是否支持 BBR：
+
+```bash
+sysctl net.ipv4.tcp_available_congestion_control
+```
+
+输出中应包含 `bbr` 或 `bbr2`。
+
+如果云厂商提供的仍是较老的 `4.x` 内核，建议先升级到较新的内核后再启用。例如 Ubuntu 22.04 可安装：
+
+```bash
+sudo apt update
+sudo apt install -y linux-image-generic-hwe-22.04
+```
+
+安装完成后重启系统，再继续下面的配置。
+
+### Ubuntu / Debian 开启 BBR
+
+以下步骤适用于 **Ubuntu 22.04**、**Debian 12** 等较新的发行版：
+
+```bash
+sudo apt update && sudo apt install -y --no-install-recommends ca-certificates
+
+# 1. 确保系统已加载 tcp_bbr 模块
+sudo modprobe tcp_bbr
+
+# 2. 写入 sysctl 配置
+cat <<'CFG' | sudo tee /etc/sysctl.d/90-bbr.conf
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+CFG
+
+# 3. 应用并验证
+sudo sysctl --system
+sysctl net.ipv4.tcp_congestion_control
+```
+
+如果最后一行返回 `bbr`，说明已经启用成功。
+
+> 提示：如果老旧内核不支持 `fq` 队列，可以临时改用 `fq_codel`；但从稳定性和兼容性考虑，仍然更建议优先升级内核。
+
+---
+
 ## 🧭 管理方式（推荐）
 
 安装完成后，直接使用：
