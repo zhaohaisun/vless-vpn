@@ -1,5 +1,9 @@
 # 🚀 VLESS Reality 一键管理脚本
 
+## 简要使用说明
+
+### 介绍
+
 一个 **基于 Xray + VLESS Reality 的一键安装与管理脚本**，支持安装、更新、卸载、配置查看，并提供 `vless` 全局命令进行长期管理。
 
 适合：
@@ -7,6 +11,43 @@
 * VPS 自建 Reality 节点
 * 博客教程配套脚本
 * 需要 **可重复安装 / 可恢复配置** 的用户
+
+## 启动和配置
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/jinqians/vless/main/vless.sh)
+```
+
+如使用shadowrocket，直接扫码即可；
+
+如使用clash verge，可配置`.yaml`文件格式如下：
+
+```yaml
+proxies:
+  - name: "VLESS"
+    type: vless
+    server: "your ip address"
+    port: 443
+    uuid: "your uuid"
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: "your server name"
+    reality-opts:
+      public-key: "your public key"
+      short-id: ""
+    client-fingerprint: chrome
+```
+
+此外服务器防火墙需开放`443`端口，例如`Vultr`仅开放`22`端口
+
+示例如下：
+
+```bash
+ufw allow 443/tcp
+ufw reload
+```
 
 ---
 
@@ -203,6 +244,15 @@ proxies:
 ```
 
 此外服务器防火墙需开放`443`端口，例如`Vultr`仅开放`22`端口
+
+示例如下：
+
+```bash
+ufw allow 443/tcp
+ufw reload
+```
+
+
 
 ---
 
